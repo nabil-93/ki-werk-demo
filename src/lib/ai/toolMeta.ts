@@ -1,0 +1,26 @@
+// Anzeigenamen und Quellsysteme der Copilot-Werkzeuge (auch im Browser genutzt)
+
+export const TOOL_META: Record<string, { label: string; system: string }> = {
+  werk_uebersicht: { label: "Werksübersicht abrufen", system: "MES · SAP" },
+  maschinen_status: { label: "Maschinenstatus lesen", system: "MES · OPC UA" },
+  wartungsprognose: { label: "Wartungsprognose berechnen", system: "KI-Modell pm-lager-v1.3" },
+  auftraege_suchen: { label: "Aufträge durchsuchen", system: "SAP S/4HANA" },
+  liefertermin_pruefen: { label: "Liefertermin prüfen", system: "SAP · MES · TMS" },
+  machbarkeit_pruefen: { label: "Machbarkeit prüfen (CTP)", system: "SAP · MES · WMS · TMS" },
+  qualitaetsbericht: { label: "Qualitätsdaten auswerten", system: "CAQ · Kamera" },
+  material_und_lager: { label: "Material & Reichweite prüfen", system: "WMS · SAP MM" },
+  versand_uebersicht: { label: "Versand & Sendungen lesen", system: "TMS · Speditionsportal" },
+  wissen_suchen: { label: "Wissensbasis durchsuchen", system: "Dokumente (RAG)" },
+  wartung_vorschlagen: { label: "Wartungsauftrag vorbereiten", system: "CMMS (Entwurf)" },
+  umplanung_vorschlagen: { label: "Umplanung vorbereiten", system: "MES (Entwurf)" },
+  bestellung_vorschlagen: { label: "Bestellung vorbereiten", system: "SAP MM (Entwurf)" },
+  lkw_hof: { label: "LKW-Hof & Zeitfenster lesen", system: "Yard-Management · Pförtner · Telematik" },
+  fertigwarenlager: { label: "Fertigwarenbestand prüfen", system: "WMS · Hochregallager" },
+  finanzen: { label: "Umsatz & Deckungsbeitrag auswerten", system: "SAP FI/CO" },
+  bericht_erstellen: { label: "Bericht & Empfehlungen erstellen", system: "MES · SAP · WMS · TMS" },
+  massnahme_vorschlagen: { label: "Maßnahme vorbereiten", system: "CMMS · MES (Entwurf)" },
+  kunde_info: { label: "Kundenakte lesen", system: "SAP SD · FI/CO · TMS" },
+  risiko_radar: { label: "Risiko-Radar: Experteneinschätzung", system: "KI-Wächter · SAP · WMS · TMS · Yard" },
+  was_waere_wenn: { label: "Was-wäre-wenn simulieren (72 h)", system: "Digitaler Zwilling" },
+  ki_waechter: { label: "KI-Wächter: Befunde & Maßnahmen", system: "OPC UA · MES · SAP · CAQ · KI-Modelle" },
+};
