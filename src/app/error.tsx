@@ -22,6 +22,7 @@ export default function AppError({ error, reset }: { error: Error & { digest?: s
         <RefreshCw size={22} className={reloading ? "mx-auto animate-spin text-accent" : "mx-auto text-accent"} />
         <div className="mt-3 text-[15px] font-semibold">{reloading ? "Neue Version – die Seite wird neu geladen …" : "Diese Ansicht konnte nicht geladen werden."}</div>
         <div className="mt-1 text-[12.5px] text-muted">{reloading ? "Einen Moment bitte." : "Bitte neu laden. Die Werksdaten laufen im Hintergrund weiter."}</div>
+        {!reloading && error?.message && <div className="mt-2 break-words text-[10.5px] text-faint">Technisch: {error.message.slice(0, 180)}</div>}
         {!reloading && (
           <div className="mt-4 flex justify-center gap-2">
             <button onClick={() => window.location.reload()} className="rounded-lg bg-ink px-3.5 py-2 text-[12.5px] font-semibold text-bg">

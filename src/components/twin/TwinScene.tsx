@@ -2,7 +2,7 @@
 
 import { MapControls } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { memo, useEffect, useRef, useState, type ComponentRef } from "react";
+import { Component, Fragment, memo, useEffect, useRef, useState, type ComponentRef, type ReactNode } from "react";
 import * as THREE from "three";
 import { useUi } from "@/lib/client/store";
 import { LabelLayer, LabelProjector } from "./Labels";
@@ -310,6 +310,12 @@ function TwinScene({ intro }: { intro?: boolean }) {
         camera={{ fov: 32, near: 0.8, far: 5000, position: [-200, 220, 300] }}
         gl={{ antialias: rtShadows, preserveDrawingBuffer: false, powerPreference: "high-performance" }}
         onCreated={({ gl, scene, camera }) => {
+          // Grafikkontext vom Browser entzogen (z. B. zu viele 3D-Tabs) und nicht zurückgegeben → Szene neu starten
+          let lost: ReturnType<typeof setTimeout> | undefined;
+          gl.domElement.addEventListener("webglcontextlost", () => {
+            lost = setTimeout(() => window.dispatchEvent(new Event(GL_LOST)), 3000);
+          });
+          gl.domElement.addEventListener("webglcontextrestored", () => clearTimeout(lost));
           // Diagnose in der Konsole: window.__cortexGl.info.render, window.__cortexScene, window.__cortexCamera
           (window as unknown as Record<string, unknown>).__cortexGl = gl;
           (window as unknown as Record<string, unknown>).__cortexScene = scene;
@@ -353,5 +359,65 @@ function TwinScene({ intro }: { intro?: boolean }) {
   );
 }
 
+const GL_LOST = "cortex-gl-lost";
+
+/**
+ * Schutz für die 3D-Ansicht: Kann der Browser keinen Grafikkontext anlegen (meist zu viele offene 3D-Tabs oder
+ * voller Grafikspeicher), startet die Szene einmal automatisch neu – erst danach erscheint ein Hinweis.
+ * Der Rest des Leitstands (Kennzahlen, Panels) bleibt bedienbar.
+ */
+class TwinBoundary extends Component<{ children: ReactNode }, { error?: Error; tries: number; run: number }> {
+  state: { error?: Error; tries: number; run: number } = { tries: 0, run: 0 };
+  private timer?: ReturnType<typeof setTimeout>;
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  componentDidMount() {
+    window.addEventListener(GL_LOST, this.restart);
+  }
+  componentWillUnmount() {
+    window.removeEventListener(GL_LOST, this.restart);
+    clearTimeout(this.timer);
+  }
+  componentDidCatch(error: Error) {
+    console.error("3D-Ansicht:", error);
+    if (this.state.tries < 1) this.timer = setTimeout(() => this.setState((s) => ({ error: undefined, tries: s.tries + 1, run: s.run + 1 })), 1500);
+  }
+  restart = () => this.setState((s) => ({ error: undefined, run: s.run + 1 }));
+  render() {
+    const { error, tries, run } = this.state;
+    if (!error) return <Fragment key={run}>{this.props.children}</Fragment>;
+    return (
+      <div className="blueprint absolute inset-0 flex items-center justify-center p-6">
+        {tries < 1 ? (
+          <div className="text-[12px] text-muted">3D-Werk wird neu gestartet …</div>
+        ) : (
+          <div className="panel max-w-md p-5 text-center">
+            <div className="text-[14px] font-semibold">Die 3D-Ansicht konnte nicht gestartet werden.</div>
+            <div className="mt-1 text-[12px] text-muted">Meist ist der Grafikspeicher des Browsers voll – zum Beispiel, weil das Werk in mehreren Tabs offen ist. Andere Tabs schließen und neu laden; Kennzahlen und Panels funktionieren weiter.</div>
+            <div className="mt-2 break-words text-[10.5px] text-faint">Technisch: {error.message.slice(0, 180)}</div>
+            <div className="mt-3 flex justify-center gap-2">
+              <button onClick={() => window.location.reload()} className="rounded-lg bg-ink px-3.5 py-2 text-[12.5px] font-semibold text-bg">
+                Neu laden
+              </button>
+              <button onClick={this.restart} className="rounded-lg border border-line px-3.5 py-2 text-[12.5px] font-semibold">
+                3D erneut starten
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
+function SafeTwinScene(props: { intro?: boolean }) {
+  return (
+    <TwinBoundary>
+      <TwinScene {...props} />
+    </TwinBoundary>
+  );
+}
+
 // memo: Eltern-Re-Renders (Live-Daten) sollen den Szenengraph nicht neu abgleichen
-export default memo(TwinScene);
+export default memo(SafeTwinScene);

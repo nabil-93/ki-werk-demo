@@ -155,12 +155,6 @@ export default function Sidebar() {
       </nav>
 
       <div className="border-t border-line-2 p-2.5">
-        {!collapsed && (
-          <div className="mb-2 rounded-lg bg-panel-2 px-3 py-2.5">
-            <div className="text-[11px] font-semibold text-ink-2">Prototyp</div>
-            <div className="mt-0.5 text-[10.5px] leading-snug text-muted">Unternehmens-KI · simulierte Werksdaten</div>
-          </div>
-        )}
         <button onClick={toggle} className={cn("flex h-8 w-full items-center gap-2 rounded-lg px-2.5 text-[12px] text-muted hover:bg-panel-2 hover:text-ink", collapsed && "justify-center px-0")}>
           {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
           {!collapsed && "Einklappen"}
